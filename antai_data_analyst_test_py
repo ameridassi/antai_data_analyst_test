@@ -1,0 +1,20 @@
+#Magic function to display the plot
+%matplotlib inline
+#Importing the needed libraries
+import matplotlib.pyplot as plt
+import pandas as pd
+
+#Import the dataset
+df= pd.read_csv('G:\Output.csv')
+#Create subplots to aggregate the plots into one
+f, ax = plt.subplots(1, 1)
+#Plot for ipad pro, with color blue. Using plot_date and passing the month as x axis
+ax.plot_date(df.month, df["ipad_pro_total"], color="blue", linestyle="-")
+#Plot for iphone xs, with color red
+ax.plot_date(df.month, df["iphone_xs_total"], color="red", linestyle="-")
+#Plot for other products, with color green
+ax.plot_date(df.month, df["other_total"], color="green", linestyle="-")
+#Setting the y axis label
+plt.ylabel('Sales Amount')
+#Creating the legend, with the title, location and labels for each product.
+plt.legend(title='Apple Sales', loc='upper left', labels=['Ipad Pro', 'Iphone xs', 'Other products'])

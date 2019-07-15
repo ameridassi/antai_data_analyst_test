@@ -1,0 +1,76 @@
+--Create the sales table
+CREATE TABLE sales (
+order_id varchar(32) NOT NULL,
+username varchar(64) NOT NULL,
+order_date date NOT NULL,
+product_id varchar(32) NOT NULL,
+product_name varchar(256) NOT NULL,
+total_amount decimal(6,2) NOT NULL,
+PRIMARY KEY (order_id));
+
+--Insert the values into the table
+INSERT INTO sales (order_id,order_date, username,product_id, product_name, total_amount)
+VALUES
+	('42-49','2019-07-01 15:05:25','bob@me.com','01','Ipad mini','449');
+			 
+INSERT INTO sales (order_id,order_date, username,product_id, product_name, total_amount)
+VALUES
+	('79-12','2019-07-03 11:42:54','jane@me.com','02','Ipad pro','879');
+
+INSERT INTO sales (order_id,order_date, username,product_id, product_name, total_amount)
+VALUES
+	('18-92','2019-07-01 17:22:10','alice@me.com','02','Ipad pro','879');
+			 
+INSERT INTO sales (order_id,order_date, username,product_id, product_name, total_amount)
+VALUES
+	('61-14','2019-06-02 10:11:43','joe@me.com','01','Ipad mini','449');
+			 
+INSERT INTO sales (order_id,order_date, username,product_id, product_name, total_amount)
+VALUES
+	('84-34','2019-06-10 12:11:32','bob@me.com','03','Airpods','179');
+			 
+INSERT INTO sales (order_id,order_date, username,product_id, product_name, total_amount)
+VALUES
+	('22-25','2019-05-15 15:10:10','jane@me.com','04','Iphone Xs','939');
+
+INSERT INTO sales (order_id,order_date, username,product_id, product_name, total_amount)
+VALUES
+	('52-49','2019-05-20 13:01:01','joe@me.com','05','Iphone 8','569');
+
+--Aggregate by month and sum the total sales for the desired products
+SELECT TO_CHAR(order_date, 'MM') as month, 
+		  sum(CASE WHEN product_name like '%Ipad pro%' then total_amount else 0 end) AS Ipad_pro_total,
+		  sum(CASE WHEN product_name like '%Iphone Xs%' then total_amount else 0 end) AS Iphone_xs_total,
+		  sum(CASE WHEN (product_name not like '%Ipad pro%') AND (product_name not like '%Iphone Xs%') then total_amount else 0 end)AS Other_total
+		  FROM sales
+		  GROUP BY month
+		  ORDER BY month ASC;
+
+--Displaying the month name
+SELECT TO_CHAR(order_date, 'Month') as month, 
+		  sum(CASE WHEN product_name like '%Ipad pro%' then total_amount else 0 end) AS Ipad_pro_total,
+		  sum(CASE WHEN product_name like '%Iphone Xs%' then total_amount else 0 end) AS Iphone_xs_total,
+		  sum(CASE WHEN product_name not like '%Ipad pro%' AND product_name not like '%Iphone Xs%' then total_amount else 0 end)AS Other_total
+		  FROM sales
+		  GROUP BY month
+		  ORDER BY month DESC;
+			 
+--Selecting by week number		 
+SELECT TO_CHAR((DATE_TRUNC('week', order_date)),'W') as weeks,
+		  sum(CASE WHEN product_name like '%Ipad pro%' then total_amount else 0 end) AS Ipad_pro_total,
+		  sum(CASE WHEN product_name like '%Iphone Xs%' then total_amount else 0 end) AS Iphone_xs_total,
+		  sum(CASE WHEN product_name not like '%Ipad pro%' AND product_name not like '%Iphone Xs%' then total_amount else 0 end)AS Other_total,
+		  sum(total_amount) as Total_weekly_sales
+		  FROM sales
+		  GROUP BY weeks
+		  ORDER BY weeks ASC;		
+
+--Export the table as .csv
+COPY (SELECT TO_CHAR(order_date, 'Month') as month, 
+		  sum(CASE WHEN product_name like '%Ipad pro%' then total_amount else 0 end) AS Ipad_pro_total,
+		  sum(CASE WHEN product_name like '%Iphone Xs%' then total_amount else 0 end) AS Iphone_xs_total,
+		  sum(CASE WHEN product_name not like '%Ipad pro%' AND product_name not like '%Iphone Xs%' then total_amount else 0 end)AS Other_total
+		  FROM sales
+		  GROUP BY month
+		  ORDER BY month DESC) TO 'G:\Output.csv'
+   DELIMITER ',' CSV HEADER;
